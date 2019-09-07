@@ -193,6 +193,10 @@ typedef drwav_uint32     drwav_bool32;
 extern "C" {
 #endif
 
+#ifdef DR_WAVE_FORMAT_GSM_IMPLEMENTATION
+#include <gsm.h>
+#endif
+
 typedef drwav_int32 drwav_result;
 #define DRWAV_SUCCESS                0
 #define DRWAV_ERROR                 -1
@@ -854,9 +858,7 @@ void drwav_close(drwav* pWav);
 #include <string.h> /* For memcpy(), memset() */
 #include <limits.h> /* For INT_MAX */
 
-#ifdef DR_WAVE_FORMAT_GSM_IMPLEMENTATION
-#include <gsm.h>
-#endif
+
 
 #ifndef DR_WAV_NO_STDIO
 #include <stdio.h>
