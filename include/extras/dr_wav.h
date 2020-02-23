@@ -2903,7 +2903,7 @@ drwav_uint64 drwav_read_pcm_frames_s32__gsm(drwav* pWav, drwav_uint64 framesToRe
         }
 			
 		if (bytes < 65) {
-			printf("invalid wav gsm frame size: %d bytes\n", bytes);
+			//printf("invalid wav gsm frame size: %d bytes\n", bytes);
             pWav->compressed.iCurrentPCMFrame += done;
 			return done;
 		}
