@@ -2596,6 +2596,8 @@ drwav_bool32 drwav_seek_to_pcm_frame(drwav* pWav, drwav_uint64 targetFrameIndex)
 					framesRead = drwav_read_pcm_frames_s16__msadpcm(pWav, framesToRead, devnull);
 				} else if (pWav->translatedFormatTag == DR_WAVE_FORMAT_DVI_ADPCM) {
 					framesRead = drwav_read_pcm_frames_s16__ima(pWav, framesToRead, devnull);
+				} else if (pWav->translatedFormatTag == DR_WAVE_FORMAT_GSM) {
+					framesRead = drwav_read_pcm_frames_s32__gsm(pWav, framesToRead, (drwav_int32*)devnull);
 				} else {
                     assert(DRWAV_FALSE);    /* If this assertion is triggered it means I've implemented a new compressed format but forgot to add a branch for it here. */
                 }
@@ -2894,10 +2896,15 @@ drwav_uint64 drwav_read_pcm_frames_s32__gsm(drwav* pWav, drwav_uint64 framesToRe
 	while (done < len) {
 		pWav->gsm.gsmindex = 0;
 		bytes = drwav_read_raw(pWav, sizeof(frame), frame);
-		if (bytes <= 0)
-			return done;
+ 
+        if (bytes <= 0) {
+            pWav->compressed.iCurrentPCMFrame += done;
+            return done;
+        }
+			
 		if (bytes < 65) {
-			//printf("invalid wav gsm frame size: %d bytes\n", bytes);
+			printf("invalid wav gsm frame size: %d bytes\n", bytes);
+            pWav->compressed.iCurrentPCMFrame += done;
 			return done;
 		}
 		/* decode the long 33 byte half */
@@ -2917,7 +2924,8 @@ drwav_uint64 drwav_read_pcm_frames_s32__gsm(drwav* pWav, drwav_uint64 framesToRe
 			pBufferOut[done++] = SOX_SIGNED_TO_SAMPLE(pWav->gsm.gsmsample[(pWav->gsm.gsmindex)++]);
 		}
 	}
-	return 0;
+    pWav->compressed.iCurrentPCMFrame += len;
+	return len;
 #else
     return framesToRead;
 #endif
